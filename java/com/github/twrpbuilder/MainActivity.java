@@ -15,21 +15,21 @@ import java.io.PrintWriter;
 public class MainActivity extends Tools {
     public static String rName;
     private static String applicationName = "TwrpBuilder";
+
     public static void usePosixParser(final String[] commandLineArguments) {
         final CommandLineParser cmdLinePosixParser = new DefaultParser();
         final Options posixOptions = constructPosixOptions();
-        final OptionsModel optionsModel=new OptionsModel();
+        final OptionsModel optionsModel = new OptionsModel();
         CommandLine commandLine;
         try {
             commandLine = cmdLinePosixParser.parse(posixOptions, commandLineArguments);
-            if (commandLine.hasOption("aik")) {
+            if (commandLine.hasOption("aik"))
                 optionsModel.setAndroidImageKitchen(true);
-            }
 
             if (commandLine.hasOption("f")) {
                 String g = commandLine.getOptionValue("f");
                 optionsModel.setExtract(true);
-                if (new File(g).exists()) {
+                if (new File(g).exists())
                     if (!g.contains(" ")) {
                         System.out.println("Building tree using: " + g);
                         if (commandLine.hasOption("t")) {
@@ -37,20 +37,16 @@ public class MainActivity extends Tools {
                             if (t.equals("mrvl")) {
                                 new RunCode(g, "mrvl",optionsModel).start();
                                 new RunCode(g, "mrvl",optionsModel).start();
-                            } else if (t.equals("samsung")) {
+                            } else if (t.equals("samsung"))
                                 new RunCode(g, "samsung",optionsModel).start();
-                            } else if (t.equals("mtk") || t.equals("mt")) {
+                            else if (t.equals("mtk") || t.equals("mt"))
                                 new RunCode(g, "mtk",optionsModel).start();
-                            }
-                        } else {
+                        } else
                             new Thread(new RunCode(g,optionsModel)).start();
-                        }
-                    } else {
+                    } else
                         System.out.println("Please remove spaces from filename. ");
-                    }
-                } else {
+                else
                     System.out.println(g + " does not exist .");
-                }
             }
 
             if (commandLine.hasOption("h")) {
@@ -63,13 +59,12 @@ public class MainActivity extends Tools {
 
             }
 
-            if (commandLine.hasOption("otg")) {
+            if (commandLine.hasOption("otg"))
                 optionsModel.setOtg(true);
-            }
 
             if (commandLine.hasOption("r")) {
                 String g = commandLine.getOptionValue("r");
-                if (new File(g).exists()) {
+                if (new File(g).exists())
                     if (!g.contains(" ")) {
                         System.out.println("Building tree using: " + g);
                         rName = g;
@@ -77,29 +72,23 @@ public class MainActivity extends Tools {
                             String t = commandLine.getOptionValue("t");
                             if (t.equals("mrvl")) {
                                 new RunCode(g, "mrvl",optionsModel).start();
-                            } else if (t.equals("samsung")) {
+                            } else if (t.equals("samsung"))
                                 new RunCode(g, "samsung",optionsModel).start();
-                            } else if (t.equals("mtk") || t.equals("mt")) {
+                            else if (t.equals("mtk") || t.equals("mt"))
                                 new RunCode(g, "mtk",optionsModel).start();
-                            }
-                        } else {
+                        else
                             new RunCode(g,optionsModel).start();
-                        }
-                    } else {
+                    } else
                         System.out.println("Please remove spaces from filename. ");
-                    }
-                } else {
+                else
                     System.out.println(g + " does not exist .");
-                }
             }
-            if (commandLine.hasOption("l")) {
+            if (commandLine.hasOption("l"))
                 optionsModel.setLandscape(true);
-            }
-        } catch (ParseException parseException)  // checked exception
-        {
+        } catch (ParseException parseException) { // checked exception
             System.err.println(
                     "Encountered exception while parsing using PosixParser:\n"
-                            + parseException.getMessage());
+                    + parseException.getMessage());
         }
     }
 
@@ -119,15 +108,15 @@ public class MainActivity extends Tools {
             final String[] commandLineArguments,
             final OutputStream out) {
         final StringBuffer buffer = new StringBuffer();
-        for (final String argument : commandLineArguments) {
+        for (final String argument : commandLineArguments)
             buffer.append(argument).append(" ");
-        }
+
         try {
             out.write((buffer.toString() + "\n").getBytes());
         } catch (IOException ioEx) {
             System.err.println(
                     "WARNING: Exception encountered trying to write to OutputStream:\n"
-                            + ioEx.getMessage());
+                    + ioEx.getMessage());
             System.out.println(buffer.toString());
         }
     }
@@ -139,6 +128,7 @@ public class MainActivity extends Tools {
             final OutputStream out) {
         final PrintWriter writer = new PrintWriter(out);
         final HelpFormatter usageFormatter = new HelpFormatter();
+        System.out.println("-- USAGE --");
         usageFormatter.printUsage(writer, 80, applicationName, options);
         writer.flush();
     }
@@ -160,6 +150,7 @@ public class MainActivity extends Tools {
                 .getName() + " -f backupfile.tar.gz";
         final PrintWriter writer = new PrintWriter(out);
         final HelpFormatter helpFormatter = new HelpFormatter();
+        System.out.println("-- HELP --");
         helpFormatter.printHelp(
                 writer,
                 printedRowWidth,
@@ -175,9 +166,7 @@ public class MainActivity extends Tools {
 
     public static void main(final String[] commandLineArguments) {
         if (commandLineArguments.length < 1) {
-            System.out.println("-- USAGE --");
             printUsage(applicationName, constructPosixOptions(), System.out);
-            System.out.println("-- HELP --");
             printHelp(
                     constructPosixOptions(), 80, "HELP", "End of Help",
                     3, 5, true, System.out);

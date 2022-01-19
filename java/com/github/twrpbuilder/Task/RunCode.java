@@ -8,13 +8,12 @@ import com.github.twrpbuilder.mkTree.MakeTree;
 import com.github.twrpbuilder.util.ExtractBackup;
 
 public class RunCode extends Thread implements Runnable {
-
-    private DeviceModel deviceModel=new DeviceModel();
+    private DeviceModel deviceModel = new DeviceModel();
     private ToolsInterface tool = new Tools();
     private OptionsModel model;
 
     public RunCode(String name, OptionsModel model) {
-        this.model=model;
+        this.model = model;
         tool.cp(name,"build.tar.gz");
         if (model.isAndroidImageKitchen()) {
             System.out.println("Using Android Image Kitchen to extract " + name);
@@ -27,7 +26,7 @@ public class RunCode extends Thread implements Runnable {
     }
 
     public RunCode(String name, String type,OptionsModel model) {
-        this.model=model;
+        this.model = model;
         deviceModel.setType(type);
         tool.cp(name,"build.tar.gz");
         if (type.equals("mrvl")) {
@@ -50,10 +49,8 @@ public class RunCode extends Thread implements Runnable {
 
     @Override
     public void run() {
-        if (model.isExtract()) {
+        if (model.isExtract())
             new ExtractBackup("build.tar.gz");
-        }
         new MakeTree(deviceModel,model);
     }
-
 }

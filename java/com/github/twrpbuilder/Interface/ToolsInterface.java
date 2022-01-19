@@ -20,7 +20,7 @@ public interface ToolsInterface {
 
     boolean rm(String name);
 
-    String CopyRight();
+    String copyRight();
 
     void cp(String from, String to);
 

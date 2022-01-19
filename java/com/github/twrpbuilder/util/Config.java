@@ -9,15 +9,13 @@ public class Config extends Tools {
     public static String recoveryFile = recovery() + ".img";
 
     public static String recovery() {
-        if (rName == null) {
+        if (rName == null)
             return "recovery";
-        } else {
+        else
             if (rName.contains(".img")) {
                 String rename = rName.replace(".img", "");
                 return rename;
-            } else {
+            } else
                 return rName;
-            }
-        }
     }
 }
