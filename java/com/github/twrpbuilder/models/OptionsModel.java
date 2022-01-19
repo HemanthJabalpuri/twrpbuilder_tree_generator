@@ -1,4 +1,4 @@
-package com.github.twrpbuilder.Models;
+package com.github.twrpbuilder.models;
 
 import java.io.Serializable;
 

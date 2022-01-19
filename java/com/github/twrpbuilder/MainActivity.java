@@ -1,8 +1,8 @@
 package com.github.twrpbuilder;
 
-import com.github.twrpbuilder.Interface.Tools;
-import com.github.twrpbuilder.Models.OptionsModel;
-import com.github.twrpbuilder.Task.RunCode;
+import com.github.twrpbuilder.interfaces.Tools;
+import com.github.twrpbuilder.models.OptionsModel;
+import com.github.twrpbuilder.tasks.RunCode;
 import com.github.twrpbuilder.mkTree.MakeTree;
 import org.apache.commons.cli.*;
 
@@ -95,7 +95,7 @@ public class MainActivity extends Tools {
     public static Options constructPosixOptions() {
         final Options option = new Options();
         option.addOption("f", "file", true, "build using backup file (made from app).");
-        option.addOption("t", "type", true, "supported option :- \n mt , samsung,mrvl");
+        option.addOption("t", "type", true, "supported option :- mt, samsung, mrvl");
         option.addOption("l", "land-scape", false, "enable landscape mode");
         option.addOption("aik", "Android_Image_Kitchen", false, "Extract backup or recovery.img using Android Image kitchen");
         option.addOption("otg", "otg-support", false, "add otg support to fstab");

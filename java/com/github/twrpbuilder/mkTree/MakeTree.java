@@ -1,10 +1,10 @@
 package com.github.twrpbuilder.mkTree;
 
-import com.github.twrpbuilder.Interface.OnDataRequest;
-import com.github.twrpbuilder.Interface.Tools;
-import com.github.twrpbuilder.Models.DeviceModel;
-import com.github.twrpbuilder.Models.OptionsModel;
-import com.github.twrpbuilder.util.Config;
+import com.github.twrpbuilder.interfaces.OnDataRequest;
+import com.github.twrpbuilder.interfaces.Tools;
+import com.github.twrpbuilder.models.DeviceModel;
+import com.github.twrpbuilder.models.OptionsModel;
+import com.github.twrpbuilder.utils.Config;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -49,7 +49,7 @@ public class MakeTree extends Tools {
                     command("sed 's/\\[\\([^]]*\\)\\]/\\1/g' " + propFile() + " | sed 's/: /=/g' | tee > b.prop && mv -f b.prop build.prop");
                     if (deviceModel.getCodename().isEmpty()) {
                         System.out.println("Failed to get codeName");
-                        Clean();
+                        clean();
                         System.exit(-1);
                     }
                 }
@@ -58,40 +58,40 @@ public class MakeTree extends Tools {
                     Scanner read = new Scanner(System.in);
                     String in = read.nextLine();
                     if (!in.isEmpty() && in.equals("y"))
-                        BuildMakeFiles();
+                        buildMakeFiles();
                     else {
                         warnings();
-                        Clean();
+                        clean();
                     }
                 } else
-                    BuildMakeFiles();
+                    buildMakeFiles();
             }
         });
     }
 
-    private void BuildMakeFiles() {
+    private void buildMakeFiles() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 System.out.println("Making omni_" + deviceModel.getCodename() + ".mk");
-                Write(deviceModel.getPath() + "omni_" + deviceModel.getCodename() + ".mk", getOmniData());
+                write(deviceModel.getPath() + "omni_" + deviceModel.getCodename() + ".mk", getOmniData());
                 System.out.println("Making Android.mk");
-                Write(deviceModel.getPath() + "Android.mk", getAndroidtData());
+                write(deviceModel.getPath() + "Android.mk", getAndroidtData());
                 System.out.println("Making AndroidProducts.mk");
-                Write(deviceModel.getPath() + "AndroidProducts.mk", getAndroidProductsData());
+                write(deviceModel.getPath() + "AndroidProducts.mk", getAndroidProductsData());
                 System.out.println("Making kernel.mk");
                 if (fexist(out + recoveryF + "-zImage"))
                     cp(out + recoveryF + "-zImage", deviceModel.getPath() + "kernel");
                 if (new File(out + recoveryF + "-dt").length() != l) {
                     cp(out + recoveryF + "-dt", deviceModel.getPath() + "dt.img");
-                    Write(deviceModel.getPath() + "kernel.mk", getKernelData(true));
+                    write(deviceModel.getPath() + "kernel.mk", getKernelData(true));
                 } else
-                    Write(deviceModel.getPath() + "kernel.mk", getKernelData(false));
-                MkFstab();
+                    write(deviceModel.getPath() + "kernel.mk", getKernelData(false));
+                mkFstab();
                 MkBoardConfig();
                 System.out.println("Build fingerPrint: " + deviceModel.getFingerprint());
                 warnings();
-                Clean();
+                clean();
             }
         }).start();
     }
@@ -155,28 +155,25 @@ public class MakeTree extends Tools {
             command("cd " + out + " && lz4 -d " + recoveryF + "-ramdisk.*  " + recoveryF + "-ramdisk && cpio -i <" + recoveryF + "-ramdisk ");
             lz4 = true;
         } else {
-            Clean();
+            clean();
             System.out.println("failed to uncompress ramdisk");
             System.exit(-1);
         }
     }
 
-    private void FstablastMessage() {
+    public void mkFstab() {
+        if (lz4 == true || lzma == true)
+            CheckCompression();
+
         if (fexist(out + "etc/twrp.fstab")) {
             System.out.println("Copying fstab");
-            Fstab(out + "etc/twrp.fstab");
+            fstab(out + "etc/twrp.fstab");
             command("mkdir " + deviceModel.getPath() + "stock && mv " + out + "etc/* " + deviceModel.getPath() + "stock/");
         } else if (fexist(out + "etc/recovery.fstab")) {
             System.out.println("Generating fstab");
-            Fstab(out + "etc/recovery.fstab");
+            fstab(out + "etc/recovery.fstab");
             command("mkdir " + deviceModel.getPath() + "stock && mv " + out + "etc/* " + deviceModel.getPath() + "stock/");
         }
-    }
-
-    public void MkFstab() {
-        if (lz4 == true || lzma == true)
-            CheckCompression();
-        FstablastMessage();
     }
 
     private boolean checkPartition(String path, String partition) {
@@ -186,12 +183,12 @@ public class MakeTree extends Tools {
         return false;
     }
 
-    private void Fstab(String path) {
+    private void fstab(String path) {
         // use existing twrp fstab if exists
         if (path.contains("twrp.fstab")) {
             String toWrite = copyRight;
             toWrite += command("cat " + path);
-            Write("recovery.fstab", toWrite);
+            write("recovery.fstab", toWrite);
         } else {
             String toWrite = copyRight;
             if (checkPartition(path, "boot"))
@@ -217,7 +214,7 @@ public class MakeTree extends Tools {
                 toWrite += "/usb-otg auto /dev/block/sda1 /dev/block/sda flags=storage;wipeingui;removable\n";
 
             toWrite += "/external_sd vfat /dev/block/mmcblk1p1 /dev/block/mmcblk1\n";
-            Write("recovery.fstab", toWrite);
+            write("recovery.fstab", toWrite);
         }
     }
 
@@ -329,8 +326,7 @@ public class MakeTree extends Tools {
     }
 
     public void MkBoardConfig() {
-        Write(deviceModel.getPath() + "BoardConfig.mk", getBoardData());
-
+        write(deviceModel.getPath() + "BoardConfig.mk", getBoardData());
     }
 
     private String getBoardData() {

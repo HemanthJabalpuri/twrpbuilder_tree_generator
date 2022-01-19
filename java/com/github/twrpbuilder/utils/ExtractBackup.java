@@ -1,6 +1,6 @@
-package com.github.twrpbuilder.util;
+package com.github.twrpbuilder.utils;
 
-import com.github.twrpbuilder.Interface.Tools;
+import com.github.twrpbuilder.interfaces.Tools;
 
 public class ExtractBackup extends Tools {
 

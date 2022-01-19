@@ -1,6 +1,6 @@
-package com.github.twrpbuilder.util;
+package com.github.twrpbuilder.utils;
 
-import com.github.twrpbuilder.Interface.Tools;
+import com.github.twrpbuilder.interfaces.Tools;
 
 import static com.github.twrpbuilder.MainActivity.rName;
 

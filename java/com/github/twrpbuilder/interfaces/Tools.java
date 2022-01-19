@@ -1,8 +1,8 @@
-package com.github.twrpbuilder.Interface;
+package com.github.twrpbuilder.interfaces;
 
-import com.github.twrpbuilder.Models.DeviceModel;
-import com.github.twrpbuilder.Models.PropData;
-import com.github.twrpbuilder.util.Config;
+import com.github.twrpbuilder.models.DeviceModel;
+import com.github.twrpbuilder.models.PropData;
+import com.github.twrpbuilder.utils.Config;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -78,9 +78,8 @@ public class Tools implements ToolsInterface {
                 System.out.println("Failed to make dir " + name);
                 System.exit(0);
             }
-        } else {
+        } else
             System.out.println("Dir: " + name + " already exist");
-        }
         return theDir.isDirectory();
     }
 
@@ -234,7 +233,7 @@ public class Tools implements ToolsInterface {
     }
 
     @Override
-    public void Write(String name, String data) {
+    public void write(String name, String data) {
         PrintWriter writer;
         try {
             writer = new PrintWriter(new FileOutputStream( name, false));
@@ -256,7 +255,7 @@ public class Tools implements ToolsInterface {
     }
 
     @Override
-    public void Clean() {
+    public void clean() {
         file("build.prop");
         if (rName == null)
             file(Config.recoveryFile);

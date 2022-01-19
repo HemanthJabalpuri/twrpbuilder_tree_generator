@@ -1,8 +1,8 @@
-# twrpbuilder_tree_generator
+## twrpbuilder_tree_generator
 Our magic script to generate omni twrp device tree just using a backup which contain recovery.img and build.prop!
 
-## Download :-
-[Get latest jar file](https://github.com/TwrpBuilder/twrpbuilder_tree_generator/releases/latest)
+### Download :-
+[Get latest jar file](https://github.com/HemanthJabalpuri/twrpbuilder_tree_generator/releases)
 
 ### Usage :-
 ```
@@ -19,6 +19,5 @@ HELP
    -l,--land-scape                  enable landscape mode
    -otg,--otg-support               add otg support to fstab
    -r,--recovery <arg>              build using recovery image file
-   -t,--type <arg>                  supported option :-
-                                    mt , samsung,mrvl
+   -t,--type <arg>                  supported option :- mt, samsung, mrvl
 ```

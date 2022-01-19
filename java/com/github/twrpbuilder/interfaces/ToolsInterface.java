@@ -1,4 +1,4 @@
-package com.github.twrpbuilder.Interface;
+package com.github.twrpbuilder.interfaces;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -6,9 +6,6 @@ import java.util.LinkedList;
 public interface ToolsInterface {
     String newLine = "\n";
     String seprator = File.separator;
-    String travisYml = ".travis.yml";
-    String home = System.getProperty("user.home") + seprator;
-    String pwd = System.getProperty("user.dir") + seprator;
 
     boolean fexist(String name);
 
@@ -27,6 +24,6 @@ public interface ToolsInterface {
     String propFile();
 
     void Write(String name, String data);
-    void Clean();
+    void clean();
     void extract(String name);
 }

@@ -1,11 +1,11 @@
-package com.github.twrpbuilder.Task;
+package com.github.twrpbuilder.tasks;
 
-import com.github.twrpbuilder.Interface.Tools;
-import com.github.twrpbuilder.Interface.ToolsInterface;
-import com.github.twrpbuilder.Models.DeviceModel;
-import com.github.twrpbuilder.Models.OptionsModel;
+import com.github.twrpbuilder.interfaces.Tools;
+import com.github.twrpbuilder.interfaces.ToolsInterface;
+import com.github.twrpbuilder.models.DeviceModel;
+import com.github.twrpbuilder.models.OptionsModel;
 import com.github.twrpbuilder.mkTree.MakeTree;
-import com.github.twrpbuilder.util.ExtractBackup;
+import com.github.twrpbuilder.utils.ExtractBackup;
 
 public class RunCode extends Thread implements Runnable {
     private DeviceModel deviceModel = new DeviceModel();
