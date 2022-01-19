@@ -88,7 +88,7 @@ public class MakeTree extends Tools {
                 } else
                     write(deviceModel.getPath() + "kernel.mk", getKernelData(false));
                 mkFstab();
-                MkBoardConfig();
+                mkBoardConfig();
                 System.out.println("Build fingerPrint: " + deviceModel.getFingerprint());
                 warnings();
                 clean();
@@ -325,7 +325,7 @@ public class MakeTree extends Tools {
         return idata;
     }
 
-    public void MkBoardConfig() {
+    public void mkBoardConfig() {
         write(deviceModel.getPath() + "BoardConfig.mk", getBoardData());
     }
 

@@ -23,7 +23,7 @@ public interface ToolsInterface {
 
     String propFile();
 
-    void Write(String name, String data);
+    void write(String name, String data);
     void clean();
     void extract(String name);
 }
