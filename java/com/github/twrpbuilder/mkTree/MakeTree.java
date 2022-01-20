@@ -63,6 +63,7 @@ public class MakeTree extends Tools {
                         warnings();
                         clean();
                     }
+                    read.close();
                 } else
                     buildMakeFiles();
             }

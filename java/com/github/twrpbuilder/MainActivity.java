@@ -3,13 +3,18 @@ package com.github.twrpbuilder;
 import com.github.twrpbuilder.interfaces.Tools;
 import com.github.twrpbuilder.models.OptionsModel;
 import com.github.twrpbuilder.tasks.RunCode;
-import com.github.twrpbuilder.mkTree.MakeTree;
-import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 
 public class MainActivity extends Tools {
@@ -71,12 +76,12 @@ public class MainActivity extends Tools {
                         if (commandLine.hasOption("t")) {
                             String t = commandLine.getOptionValue("t");
                             if (t.equals("mrvl")) {
-                                new RunCode(g, "mrvl",optionsModel).start();
+                                new RunCode(g, "mrvl", optionsModel).start();
                             } else if (t.equals("samsung"))
-                                new RunCode(g, "samsung",optionsModel).start();
+                                new RunCode(g, "samsung", optionsModel).start();
                             else if (t.equals("mtk") || t.equals("mt"))
-                                new RunCode(g, "mtk",optionsModel).start();
-                        else
+                                new RunCode(g, "mtk", optionsModel).start();
+                        } else
                             new RunCode(g,optionsModel).start();
                     } else
                         System.out.println("Please remove spaces from filename. ");
@@ -143,11 +148,8 @@ public class MainActivity extends Tools {
             final int spacesBeforeOptionDescription,
             final boolean displayUsage,
             final OutputStream out) {
-        final String commandLineSyntax = "java -jar " + new File(MainActivity.class.getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .getPath())
-                .getName() + " -f backupfile.tar.gz";
+        final String commandLineSyntax = "java -jar TwrpBuilder.jar" +
+                " -f backupfile.tar.gz";
         final PrintWriter writer = new PrintWriter(out);
         final HelpFormatter helpFormatter = new HelpFormatter();
         System.out.println("-- HELP --");

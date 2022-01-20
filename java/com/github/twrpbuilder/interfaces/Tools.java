@@ -3,20 +3,27 @@ package com.github.twrpbuilder.interfaces;
 import com.github.twrpbuilder.models.DeviceModel;
 import com.github.twrpbuilder.models.PropData;
 import com.github.twrpbuilder.utils.Config;
-import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.apache.commons.io.FileUtils;
 import static com.github.twrpbuilder.MainActivity.rName;
 
 public class Tools implements ToolsInterface {
 
     public long size;
-    public Config config = null;
-    public String out = config.outDir;
+    public String out = Config.outDir;
 
     @Override
     public boolean fexist(String name) {
@@ -30,7 +37,6 @@ public class Tools implements ToolsInterface {
     public String command(String run) {
         Process process;
         String o = null;
-        StringBuilder sb = null;
         String[] commands = new String[] { "/bin/bash", "-c", run };
         StringBuilder linkedList = new StringBuilder();
         try {
@@ -50,7 +56,6 @@ public class Tools implements ToolsInterface {
     public LinkedList<String> command(String run, boolean LinkList) {
         Process process;
         String o = null;
-        StringBuilder sb = null;
         String[] commands = new String[]{"/bin/bash", "-c", run};
         LinkedList<String> linkedList = new LinkedList<>();
         try {
@@ -140,7 +145,6 @@ public class Tools implements ToolsInterface {
 
     @Override
     public String propFile() {
-        config = new Config();
         String prop = null;
         if (new File("build.prop").exists())
             prop = "build.prop";
@@ -240,7 +244,6 @@ public class Tools implements ToolsInterface {
             writer.println(data);
             writer.close();
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
