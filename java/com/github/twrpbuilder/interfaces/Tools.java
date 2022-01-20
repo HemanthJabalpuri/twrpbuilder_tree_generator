@@ -3,9 +3,11 @@ package com.github.twrpbuilder.interfaces;
 import com.github.twrpbuilder.models.DeviceModel;
 import com.github.twrpbuilder.models.PropData;
 import com.github.twrpbuilder.utils.Config;
+import static com.github.twrpbuilder.MainActivity.rName;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,12 +15,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.apache.commons.io.FileUtils;
-import static com.github.twrpbuilder.MainActivity.rName;
 
 public class Tools implements ToolsInterface {
 
@@ -88,18 +87,22 @@ public class Tools implements ToolsInterface {
         return theDir.isDirectory();
     }
 
+    public void deleteDir(File file) {
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents)
+                deleteDir(f);
+        }
+        file.delete();
+    }
+
     @Override
     public boolean rm(String name) {
         if (fexist(name)) {
             File file = new File(name);
             if (file.isDirectory()) {
-                try {
-                    FileUtils.deleteDirectory(file);
-                    return true;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
-                }
+                deleteDir(file);
+                return true;
             } else if (file.isFile()) {
                 file.delete();
                 return true;
@@ -134,10 +137,20 @@ public class Tools implements ToolsInterface {
     public void cp(String from, String to) {
         File f = new File(from);
         File t = new File(to);
+        InputStream is = null;
+        OutputStream os = null;
         if (t.exists())
             rm(t.getAbsolutePath());
+
         try {
-            Files.copy(f.toPath(), t.toPath());
+            is = new FileInputStream(f);
+            os = new FileOutputStream(t);
+            byte[] buffer = new byte[4096];
+            int length;
+            while ((length = is.read(buffer)) > 0)
+                os.write(buffer, 0, length);
+            is.close();
+            os.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -155,7 +168,6 @@ public class Tools implements ToolsInterface {
 
         return prop;
     }
-
 
     LinkedList<PropData> propDataArray = new LinkedList<>();
 
@@ -230,7 +242,6 @@ public class Tools implements ToolsInterface {
             return data;
     }
 
-
     public Long getSize() {
         size = new File(Config.recoveryFile).length();
         return size;
@@ -240,7 +251,7 @@ public class Tools implements ToolsInterface {
     public void write(String name, String data) {
         PrintWriter writer;
         try {
-            writer = new PrintWriter(new FileOutputStream( name, false));
+            writer = new PrintWriter(new FileOutputStream(name, false));
             writer.println(data);
             writer.close();
         } catch (FileNotFoundException e) {
@@ -249,28 +260,20 @@ public class Tools implements ToolsInterface {
 
     }
 
-    private boolean file(String name) {
-        if (new File(name).exists()) {
-            rm(name);
-            return true;
-        } else
-            return false;
-    }
-
     @Override
     public void clean() {
-        file("build.prop");
+        rm("build.prop");
         if (rName == null)
-            file(Config.recoveryFile);
-        file("mounts");
-        file("umkbootimg");
-        file(Config.outDir);
-        file("unpack-MTK.pl");
-        file("unpackimg.sh");
-        file("bin");
-        file("magic");
-        file("androidbootimg.magic");
-        file("build.tar.gz");
+            rm(Config.recoveryFile);
+        rm("mounts");
+        rm("umkbootimg");
+        rm(Config.outDir);
+        rm("unpack-MTK.pl");
+        rm("unpackimg.sh");
+        rm("bin");
+        rm("magic");
+        rm("androidbootimg.magic");
+        rm("build.tar.gz");
     }
 
     @Override
@@ -290,6 +293,7 @@ public class Tools implements ToolsInterface {
             resStreamOut = new FileOutputStream(jarFolder + resourceName);
             while ((readBytes = stream.read(buffer)) > 0)
                 resStreamOut.write(buffer, 0, readBytes);
+
             stream.close();
             resStreamOut.close();
         } catch (Exception ex) {

@@ -19,7 +19,6 @@ public class MakeTree extends Tools {
     private String compressionType;
     private boolean lz4, lzma;
     private String copyRight = copyRight();
-    private Config config;
     private String out;
     private DeviceModel deviceModel;
     private OptionsModel optionsModel;
@@ -27,8 +26,7 @@ public class MakeTree extends Tools {
     public MakeTree(DeviceModel d, OptionsModel optionsModel) {
         this.deviceModel = d;
         this.optionsModel = optionsModel;
-        config = new Config();
-        out = config.outDir;
+        out = Config.outDir;
         extractKernel();
         extractFstab();
 
