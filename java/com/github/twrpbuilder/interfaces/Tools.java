@@ -20,7 +20,6 @@ import java.util.LinkedList;
 
 
 public class Tools implements ToolsInterface {
-
     public long size;
     public String out = Config.outDir;
 
@@ -41,9 +40,8 @@ public class Tools implements ToolsInterface {
         try {
             process = Runtime.getRuntime().exec(commands);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while ((o = bufferedReader.readLine()) != null) {
+            while ((o = bufferedReader.readLine()) != null)
                 linkedList.append(o.trim());
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,7 +50,7 @@ public class Tools implements ToolsInterface {
     }
 
     @Override
-    public LinkedList<String> command(String run, boolean LinkList) {
+    public LinkedList<String> command(String run, boolean argHolder) {
         Process process;
         String o = null;
         String[] commands = new String[]{"/bin/bash", "-c", run};
@@ -60,9 +58,8 @@ public class Tools implements ToolsInterface {
         try {
             process = Runtime.getRuntime().exec(commands);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while ((o = bufferedReader.readLine()) != null) {
+            while ((o = bufferedReader.readLine()) != null)
                 linkedList.add(o.trim());
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,6 +136,7 @@ public class Tools implements ToolsInterface {
         File t = new File(to);
         InputStream is = null;
         OutputStream os = null;
+
         if (t.exists())
             rm(t.getAbsolutePath());
 
@@ -149,6 +147,7 @@ public class Tools implements ToolsInterface {
             int length;
             while ((length = is.read(buffer)) > 0)
                 os.write(buffer, 0, length);
+
             is.close();
             os.close();
         } catch (IOException e) {

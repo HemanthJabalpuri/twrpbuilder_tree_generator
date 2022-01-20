@@ -16,7 +16,6 @@ public class ExtractBackup extends Tools {
             extractZip(name);
             System.out.println("Archive type zip");
         }
-
     }
 
     private void extractGzip(String file) {

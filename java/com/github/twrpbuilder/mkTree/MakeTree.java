@@ -52,7 +52,7 @@ public class MakeTree extends Tools {
                     }
                 }
                 if (new File(deviceModel.getPath() + "kernel.mk").exists()) {
-                    System.out.println("Do you want to overwrite " + deviceModel.getPath() + "? ( default: n)");
+                    System.out.println("Do you want to overwrite " + deviceModel.getPath() + "? (default: n)");
                     Scanner read = new Scanner(System.in);
                     String in = read.nextLine();
                     if (!in.isEmpty() && in.equals("y"))
@@ -87,7 +87,8 @@ public class MakeTree extends Tools {
                 } else
                     write(deviceModel.getPath() + "kernel.mk", getKernelData(false));
                 mkFstab();
-                mkBoardConfig();
+                System.out.println("Making BoardConfig.mk");
+                write(deviceModel.getPath() + "BoardConfig.mk", getBoardData());
                 System.out.println("Build fingerPrint: " + deviceModel.getFingerprint());
                 warnings();
                 clean();
@@ -114,17 +115,15 @@ public class MakeTree extends Tools {
     }
 
     private String getKernelData(boolean dt) {
-        String idata;
-        idata = copyRight;
+        String idata = copyRight;
         idata += "# Kernel\n" +
                 "TARGET_PREBUILT_KERNEL := $(LOCAL_PATH)/kernel\n" +
                 "BOARD_KERNEL_CMDLINE := " + cmdline() + "\n" +
                 "BOARD_KERNEL_BASE := 0x" + readRamadiskData("base") + "\n" +
                 "BOARD_KERNEL_PAGESIZE := " + readRamadiskData("pagesize") + "\n";
+        idata += "BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x" + readRamadiskData("ramdiskoff") + " --tags_offset 0x" + readRamadiskData("tagsoff");
         if (dt)
-            idata += "BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x" + readRamadiskData("ramdiskoff") + " --tags_offset 0x" + readRamadiskData("tagsoff") + " --dt $(LOCAL_PATH)/dt.img";
-        else
-            idata += "BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x" + readRamadiskData("ramdiskoff") + " --tags_offset 0x" + readRamadiskData("tagsoff");
+            idata += " --dt $(LOCAL_PATH)/dt.img";
         return idata;
     }
 
@@ -162,7 +161,7 @@ public class MakeTree extends Tools {
 
     public void mkFstab() {
         if (lz4 == true || lzma == true)
-            CheckCompression();
+            checkCompression();
 
         if (fexist(out + "etc/twrp.fstab")) {
             System.out.println("Copying fstab");
@@ -193,7 +192,7 @@ public class MakeTree extends Tools {
             if (checkPartition(path, "boot"))
                 toWrite += grepPartition(path, "boot");
 
-            if (checkPartition(path, "metadata") || checkPartition(path,"encrypt"))
+            if (checkPartition(path, "metadata") || checkPartition(path, "encrypt"))
                 deviceModel.setEncrypted(true);
             if (checkPartition(path, "data"))
                 toWrite += grepPartition(path, "data");
@@ -212,7 +211,7 @@ public class MakeTree extends Tools {
             if (optionsModel.isOtg())
                 toWrite += "/usb-otg auto /dev/block/sda1 /dev/block/sda flags=storage;wipeingui;removable\n";
 
-            toWrite += "/external_sd vfat /dev/block/mmcblk1p1 /dev/block/mmcblk1\n";
+            toWrite += "/external_sd auto /dev/block/mmcblk1p1 /dev/block/mmcblk1\n";
             write("recovery.fstab", toWrite);
         }
     }
@@ -232,9 +231,9 @@ public class MakeTree extends Tools {
                     "done", true);
         }
 
-        ListIterator<String> listIterator=s.listIterator();
+        ListIterator<String> listIterator = s.listIterator();
         while (listIterator.hasNext()) {
-            String o=listIterator.next();
+            String o = listIterator.next();
             if (!o.isEmpty()) {
                 if (partition.equals("boot") ||
                     partition.equals("recovery") ||
@@ -251,33 +250,30 @@ public class MakeTree extends Tools {
                     if (partition.equals("data") && o.contains("metadata")) {
                         if (o.contains("/metadata")) {
                             tmp += o
-                                    .replace("wait,check,resize,"," flags=")
-                                    .replace(",","")
-                                    .replace("forceencrypt","encryptable")+ "\n";
+                                    .replace("wait,check,resize,", " flags=")
+                                    .replace(",", "")
+                                    .replace("forceencrypt", "encryptable") + "\n";
 
                         } else {
                             tmp += "/" + partition + " ext4 " + o
                                     .replace("wait,check,resize,", " ")
                                     .replace(",", "");
                         }
-                        fullpath+=tmp;
+                        fullpath += tmp;
                     } else {
                         fullpath = "/" + partition + " ext4 " + o
                                 .replace("wait,check,resize,", " ")
                                 .replace(",", "") + "\n";
                     }
                 } else
-                    fullpath=null;
+                    fullpath = null;
                 System.out.println(fullpath.trim());
             }
         }
-
-        if (fullpath != null)
-            return fullpath;
-        return null;
+        return fullpath;
     }
 
-    private void CheckCompression() {
+    private void checkCompression() {
         String idata = "";
         if (lzma == true) {
             System.out.println("using lzma custom boot  ");
@@ -287,9 +283,7 @@ public class MakeTree extends Tools {
             System.out.println("using lz4 custom boot  ");
             idata += "BOARD_CUSTOM_BOOTIMG_MK := device/generic/twrpbuilder/mkbootimg_lz4.mk";
         }
-        if (idata != null) {
-            command("echo " + idata + " >> " + deviceModel.getPath() + "/kernel.mk");
-        }
+        command("echo " + idata + " >> " + deviceModel.getPath() + "/kernel.mk");
     }
 
     private String getOmniData() {
@@ -307,11 +301,8 @@ public class MakeTree extends Tools {
     private String getAndroidtData() {
         String idata = copyRight;
         idata += "ifneq ($(filter " + deviceModel.getCodename() + ",$(TARGET_DEVICE)),)\n" +
-                "\n" +
                 "LOCAL_PATH := " + deviceModel.getPath() + "\n" +
-                "\n" +
                 "include $(call all-makefiles-under,$(LOCAL_PATH))\n" +
-                "\n" +
                 "endif";
         return idata;
     }
@@ -319,13 +310,8 @@ public class MakeTree extends Tools {
     private String getAndroidProductsData() {
         String idata = copyRight;
         idata += "LOCAL_PATH := " + deviceModel.getPath() + "\n" +
-                "\n" +
                 "PRODUCT_MAKEFILES := $(LOCAL_PATH)/omni_" + deviceModel.getCodename() + ".mk";
         return idata;
-    }
-
-    public void mkBoardConfig() {
-        write(deviceModel.getPath() + "BoardConfig.mk", getBoardData());
     }
 
     private String getBoardData() {

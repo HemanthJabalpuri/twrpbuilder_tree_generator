@@ -5,8 +5,6 @@ import com.github.twrpbuilder.models.OptionsModel;
 import com.github.twrpbuilder.tasks.RunCode;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.apache.commons.cli.CommandLine;
@@ -19,88 +17,11 @@ import org.apache.commons.cli.ParseException;
 
 public class MainActivity extends Tools {
     public static String rName;
-    private static String applicationName = "TwrpBuilder";
-
-    public static void usePosixParser(final String[] commandLineArguments) {
-        final CommandLineParser cmdLinePosixParser = new DefaultParser();
-        final Options posixOptions = constructPosixOptions();
-        final OptionsModel optionsModel = new OptionsModel();
-        CommandLine commandLine;
-        try {
-            commandLine = cmdLinePosixParser.parse(posixOptions, commandLineArguments);
-            if (commandLine.hasOption("aik"))
-                optionsModel.setAndroidImageKitchen(true);
-
-            if (commandLine.hasOption("f")) {
-                String g = commandLine.getOptionValue("f");
-                optionsModel.setExtract(true);
-                if (new File(g).exists())
-                    if (!g.contains(" ")) {
-                        System.out.println("Building tree using: " + g);
-                        if (commandLine.hasOption("t")) {
-                            String t = commandLine.getOptionValue("t");
-                            if (t.equals("mrvl")) {
-                                new RunCode(g, "mrvl",optionsModel).start();
-                                new RunCode(g, "mrvl",optionsModel).start();
-                            } else if (t.equals("samsung"))
-                                new RunCode(g, "samsung",optionsModel).start();
-                            else if (t.equals("mtk") || t.equals("mt"))
-                                new RunCode(g, "mtk",optionsModel).start();
-                        } else
-                            new Thread(new RunCode(g,optionsModel)).start();
-                    } else
-                        System.out.println("Please remove spaces from filename. ");
-                else
-                    System.out.println(g + " does not exist .");
-            }
-
-            if (commandLine.hasOption("h")) {
-                System.out.println("-- USAGE --");
-                printUsage(applicationName, constructPosixOptions(), System.out);
-                System.out.println("-- HELP --");
-                printHelp(
-                        constructPosixOptions(), 80, "HELP", "End of Help",
-                        3, 5, true, System.out);
-
-            }
-
-            if (commandLine.hasOption("otg"))
-                optionsModel.setOtg(true);
-
-            if (commandLine.hasOption("r")) {
-                String g = commandLine.getOptionValue("r");
-                if (new File(g).exists())
-                    if (!g.contains(" ")) {
-                        System.out.println("Building tree using: " + g);
-                        rName = g;
-                        if (commandLine.hasOption("t")) {
-                            String t = commandLine.getOptionValue("t");
-                            if (t.equals("mrvl")) {
-                                new RunCode(g, "mrvl", optionsModel).start();
-                            } else if (t.equals("samsung"))
-                                new RunCode(g, "samsung", optionsModel).start();
-                            else if (t.equals("mtk") || t.equals("mt"))
-                                new RunCode(g, "mtk", optionsModel).start();
-                        } else
-                            new RunCode(g,optionsModel).start();
-                    } else
-                        System.out.println("Please remove spaces from filename. ");
-                else
-                    System.out.println(g + " does not exist .");
-            }
-            if (commandLine.hasOption("l"))
-                optionsModel.setLandscape(true);
-        } catch (ParseException parseException) { // checked exception
-            System.err.println(
-                    "Encountered exception while parsing using PosixParser:\n"
-                    + parseException.getMessage());
-        }
-    }
 
     public static Options constructPosixOptions() {
         final Options option = new Options();
         option.addOption("f", "file", true, "build using backup file (made from app).");
-        option.addOption("t", "type", true, "supported option :- mt, samsung, mrvl");
+        option.addOption("t", "type", true, "supported option :- mtk, samsung, mrvl");
         option.addOption("l", "land-scape", false, "enable landscape mode");
         option.addOption("aik", "Android_Image_Kitchen", false, "Extract backup or recovery.img using Android Image kitchen");
         option.addOption("otg", "otg-support", false, "add otg support to fstab");
@@ -109,70 +30,84 @@ public class MainActivity extends Tools {
         return option;
     }
 
-    public static void displayProvidedCommandLineArguments(
-            final String[] commandLineArguments,
-            final OutputStream out) {
-        final StringBuffer buffer = new StringBuffer();
-        for (final String argument : commandLineArguments)
-            buffer.append(argument).append(" ");
+    public static void printHelp() {
+        final PrintWriter writer = new PrintWriter(System.out);
+        final int printedRowWidth = 80;
+        final String commandLineSyntax = "java -jar TwrpBuilder.jar -f backupfile.tar.gz";
+        final String header = "HELP";
+        final int spacesBeforeOption = 3;
+        final int spacesBeforeOptionDescription = 5;
+        final String footer = "End of Help";
+        final boolean displayUsage = true;
 
-        try {
-            out.write((buffer.toString() + "\n").getBytes());
-        } catch (IOException ioEx) {
-            System.err.println(
-                    "WARNING: Exception encountered trying to write to OutputStream:\n"
-                    + ioEx.getMessage());
-            System.out.println(buffer.toString());
-        }
-    }
-
-
-    public static void printUsage(
-            final String applicationName,
-            final Options options,
-            final OutputStream out) {
-        final PrintWriter writer = new PrintWriter(out);
-        final HelpFormatter usageFormatter = new HelpFormatter();
-        System.out.println("-- USAGE --");
-        usageFormatter.printUsage(writer, 80, applicationName, options);
-        writer.flush();
-    }
-
-
-    public static void printHelp(
-            final Options options,
-            final int printedRowWidth,
-            final String header,
-            final String footer,
-            final int spacesBeforeOption,
-            final int spacesBeforeOptionDescription,
-            final boolean displayUsage,
-            final OutputStream out) {
-        final String commandLineSyntax = "java -jar TwrpBuilder.jar" +
-                " -f backupfile.tar.gz";
-        final PrintWriter writer = new PrintWriter(out);
         final HelpFormatter helpFormatter = new HelpFormatter();
-        System.out.println("-- HELP --");
         helpFormatter.printHelp(
                 writer,
                 printedRowWidth,
                 commandLineSyntax,
                 header,
-                options,
+                constructPosixOptions(),
                 spacesBeforeOption,
                 spacesBeforeOptionDescription,
                 footer,
                 displayUsage);
+
         writer.flush();
     }
 
-    public static void main(final String[] commandLineArguments) {
-        if (commandLineArguments.length < 1) {
-            printUsage(applicationName, constructPosixOptions(), System.out);
-            printHelp(
-                    constructPosixOptions(), 80, "HELP", "End of Help",
-                    3, 5, true, System.out);
+    public static void usePosixParser(final String[] commandLineArguments) {
+        final CommandLineParser cmdLinePosixParser = new DefaultParser();
+        final Options posixOptions = constructPosixOptions();
+        final OptionsModel optionsModel = new OptionsModel();
+        CommandLine commandLine;
+        try {
+            commandLine = cmdLinePosixParser.parse(posixOptions, commandLineArguments);
+
+            if (commandLine.hasOption("h"))
+                printHelp();
+
+            if (commandLine.hasOption("aik"))
+                optionsModel.setAndroidImageKitchen(true);
+
+            if (commandLine.hasOption("otg"))
+                optionsModel.setOtg(true);
+
+            if (commandLine.hasOption("l"))
+                optionsModel.setLandscape(true);
+
+            if (commandLine.hasOption("r") || commandLine.hasOption("f")) {
+                String g;
+                if (commandLine.hasOption("f")) {
+                    g = commandLine.getOptionValue("f");
+                    optionsModel.setExtract(true);
+                } else {
+                    g = commandLine.getOptionValue("r");
+                    rName = g;
+                }
+                if (new File(g).exists())
+                    if (!g.contains(" ")) {
+                        System.out.println("Building tree using: " + g);
+                        if (commandLine.hasOption("t")) {
+                            String t = commandLine.getOptionValue("t");
+                            if (t.equals("mrvl") || t.equals("samsung") || t.equals("mtk"))
+                                new RunCode(g, t, optionsModel).start();
+                        } else
+                            new Thread(new RunCode(g, optionsModel)).start();
+                    } else
+                        System.out.println("Please remove spaces from filename.");
+                else
+                    System.out.println(g + " does not exist.");
+            }
+        } catch (ParseException parseException) { // checked exception
+            System.err.println(
+                    "Encountered exception while parsing using PosixParser:\n"
+                    + parseException.getMessage());
         }
+    }
+
+    public static void main(final String[] commandLineArguments) {
+        if (commandLineArguments.length < 1)
+            printHelp();
         usePosixParser(commandLineArguments);
     }
 }

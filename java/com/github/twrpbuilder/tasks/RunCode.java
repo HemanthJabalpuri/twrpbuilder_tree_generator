@@ -14,7 +14,7 @@ public class RunCode extends Thread implements Runnable {
 
     public RunCode(String name, OptionsModel model) {
         this.model = model;
-        tool.cp(name,"build.tar.gz");
+        tool.cp(name, "build.tar.gz");
         if (model.isAndroidImageKitchen()) {
             System.out.println("Using Android Image Kitchen to extract " + name);
             tool.extract("bin");
@@ -25,7 +25,7 @@ public class RunCode extends Thread implements Runnable {
         }
     }
 
-    public RunCode(String name, String type,OptionsModel model) {
+    public RunCode(String name, String type, OptionsModel model) {
         this.model = model;
         deviceModel.setType(type);
         tool.cp(name,"build.tar.gz");
@@ -33,7 +33,7 @@ public class RunCode extends Thread implements Runnable {
             tool.extract("degas-umkbootimg");
             tool.command("mv degas-umkbootimg umkbootimg ");
             deviceModel.setMrvl(true);
-        } else if (type.equals("mt") || type.equals("mtk")) {
+        } else if (type.equals("mtk")) {
             tool.extract("unpack-MTK.pl");
             tool.command("mv unpack-MTK.pl umkbootimg");
             deviceModel.setMtk(true);
@@ -51,6 +51,6 @@ public class RunCode extends Thread implements Runnable {
     public void run() {
         if (model.isExtract())
             new ExtractBackup("build.tar.gz");
-        new MakeTree(deviceModel,model);
+        new MakeTree(deviceModel, model);
     }
 }
