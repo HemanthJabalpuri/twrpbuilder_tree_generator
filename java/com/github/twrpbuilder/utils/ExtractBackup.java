@@ -3,7 +3,6 @@ package com.github.twrpbuilder.utils;
 import com.github.twrpbuilder.interfaces.Tools;
 
 public class ExtractBackup extends Tools {
-
     private String rooted;
     private String not_rooted;
 

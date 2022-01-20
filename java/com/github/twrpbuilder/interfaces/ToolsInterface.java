@@ -11,7 +11,7 @@ public interface ToolsInterface {
 
     String command(String run);
 
-    LinkedList command(String run, boolean LinkList);
+    LinkedList<String> command(String run, boolean LinkList);
 
     boolean mkdir(String name);
 
