@@ -53,7 +53,7 @@ public class Tools implements ToolsInterface {
     public LinkedList<String> command(String run, boolean argHolder) {
         Process process;
         String o = null;
-        String[] commands = new String[]{"/bin/bash", "-c", run};
+        String[] commands = new String[] { "/bin/bash", "-c", run };
         LinkedList<String> linkedList = new LinkedList<>();
         try {
             process = Runtime.getRuntime().exec(commands);
