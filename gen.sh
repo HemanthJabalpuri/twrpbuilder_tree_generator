@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # TWRP device tree generator
 # by HemanthJabalpuri @ XDA
 # 
@@ -5,19 +7,19 @@
 #  - https://github.com/twrpdtgen/twrpdtgen
 #  - https://github.com/TwrpBuilder/twrpbuilder_tree_generator
 
-if [ "$#" -ne 4 ]; then
+if [ $# -ne 4 ]; then
   echo "Usage: gen.sh recovery.img props.txt AIKfolderpath treedir"
   exit
 fi
 
 #set -x
 
-################
+#################
 recoveryfile="$1"
 buildprop="$2"
 aikhome="$3"
 treedir="$4"
-################
+#################
 
 tmpd="$PWD"; [ "$PWD" = "/" ] && tmpd=""
 case "$0" in
@@ -27,20 +29,22 @@ esac
 cdir="${cdir%/*}"
 
 cleanupAIK() {
-  cd "$aikhome"
+  ( cd "$aikhome"
   chmod 777 cleanup.sh
-  ./cleanup.sh
-  cd - >/dev/null
+  ./cleanup.sh )
 }
 
 cleanupAIK
 
 cd "$aikhome"
 chmod 777 unpackimg.sh
-./unpackimg.sh $recoveryfile
+./unpackimg.sh "$recoveryfile"
 
-cd "$4"
+cd "$treedir"
 
+stripExtras() {
+  echo "$1" | tr ' [:punct:]' '_'
+}
 
 get_prop() {
 
@@ -51,13 +55,11 @@ get_prop() {
 
 
 genomnimk() {
-  device="$(get_prop ro.product.device)"
-  model="$(get_prop ro.product.model)"
-  brand="$(get_prop ro.product.brand)"
-  manufacturer="$(get_prop ro.product.manufacturer)"
+  local manufacturer="$(get_prop ro.product.manufacturer)"
+  local brand="$(stripExtras "$(get_prop ro.product.brand)")"
+  local model="$(get_prop ro.product.model)"
+  device="$(stripExtras "$(get_prop ro.product.device)")"
   devpath="device/$brand/$device"
-
-  #TODO: handle spaces and hyphens in $device and $brand
 
   mkdir -p "$devpath"
   cd "$devpath"
@@ -109,25 +111,25 @@ genAndroidProductsmk() {
 
 genPrebuilts() {
   mkdir prebuilt
-  cp "$aikhome"/split_img/*-kernel prebuilt/kernel
+  cp "$aikhome/split_img/*-kernel" prebuilt/kernel
   if ls "$aikhome/split_img" | grep -q 'dtb$'; then
     prebuiltdtb=1
     mkdir prebuilt/dtb
-    cp "$aikhome"/split_img/*-dtb prebuilt/dtb/prebuilt.dtb
+    cp "$aikhome/split_img/*-dtb" prebuilt/dtb/prebuilt.dtb
   fi
   if ls "$aikhome/split_img" | grep -q 'dtbo$'; then
     prebuiltdtbo=1
-    cp "$aikhome"/split_img/*dtbo prebuilt/dtbo.img
+    cp "$aikhome/split_img/*dtbo" prebuilt/dtbo.img
   fi
   if ls "$aikhome/split_img" | grep -q 'dt$'; then
     prebuiltdt=1
-    cp "$aikhome"/split_img/*-dt prebuilt/dt.img
+    cp "$aikhome/split_img/*-dt" prebuilt/dt.img
   fi
 }
 
 
 grep_part() {
-  part="$(grep "$1" "$fstab")"
+  local part="$(grep "$1" "$fstab")"
   echo "$part" | while read line; do
     case "$line" in
       '#'*) continue;;
@@ -178,30 +180,30 @@ genKernelConfigs() {
 
   echo '# Kernel'
   if ls | grep -q 'cmdline$'; then
-    cmdline="$(cat *-cmdline)"
+    local cmdline="$(cat ./*-cmdline)"
     echo "BOARD_KERNEL_CMDLINE := $cmdline"
   fi
   if ls | grep -q 'header_version$'; then
-    headerver="$(cat *-header_version)"
+    local headerver="$(cat ./*-header_version)"
     echo "BOARD_BOOTIMG_HEADER_VERSION := $headerver"
     echo 'BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOTIMG_HEADER_VERSION)'
   fi
   if ls | grep -q 'base$'; then
-    base="$(cat *-base)"
+    local base="$(cat ./*-base)"
     echo "BOARD_KERNEL_BASE := $base"
   fi
   if ls | grep -q 'pagesize$'; then
-    pagesize="$(cat *-pagesize)"
+    local pagesize="$(cat ./*-pagesize)"
     echo "BOARD_KERNEL_PAGESIZE := $pagesize"
     echo "BOARD_FLASH_BLOCK_SIZE := $((pagesize*64)) # (BOARD_KERNEL_PAGESIZE * 64)"
   fi
   if ls | grep -q 'ramdisk_offset$'; then
-    ramdisk_offset="$(cat *-ramdisk_offset)"
+    local ramdisk_offset="$(cat ./*-ramdisk_offset)"
     echo "BOARD_RAMDISK_OFFSET := $ramdisk_offset"
     echo 'BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)'
   fi
   if ls | grep -q 'tags_offset$'; then
-    tags_offset="$(cat *-tags_offset)"
+    local tags_offset="$(cat ./*-tags_offset)"
     echo "BOARD_KERNEL_TAGS_OFFSET := $tags_offset"
     echo 'BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)'
   fi
@@ -220,7 +222,7 @@ genKernelConfigs() {
   echo 'TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel'
 
   if ls | grep -q 'ramdiskcomp$'; then
-    ramdiskcomp="$(cat *-ramdiskcomp)"
+    local ramdiskcomp="$(cat ./*-ramdiskcomp)"
     if [ "$ramdiskcomp" = "lzma" ]; then
       echo ''
       echo '# Ramdisk compression'
@@ -234,6 +236,7 @@ genKernelConfigs() {
 
 
 genBoardConfig() {
+  local arch, platform, board
 #  platform=$(get_prop ro.mediatek.platform)
 #  [ "$platform" ] || platform=generic
   arch=arm
@@ -272,7 +275,7 @@ genBoardConfig() {
   platform="$(get_prop ro.board.platform)"
 #  board="$(get_prop ro.product.board)"
   if ls "$aikhome/split_img" | grep -q 'board$'; then
-    board="$(cat "$aikhome"/split_img/*-board)"
+    board="$(cat "$aikhome/split_img/*-board")"
   fi
   echo "TARGET_BOARD_PLATFORM := $platform"
   echo "TARGET_BOOTLOADER_BOARD_NAME := $board"
@@ -284,10 +287,26 @@ genBoardConfig() {
   echo 'BOARD_HAS_LARGE_FILESYSTEM := true'
 #  echo 'BOARD_HAS_NO_SELECT_BUTTON := true'
 
-  recovery_size="$(stat -c %s "$recoveryfile")"
-  echo "#BOARD_RECOVERYIMAGE_PARTITION_SIZE := $recovery_size # This is the maximum known partition size, but it can be higher, so we just omit it"
-
-  #TODO: Uncomment if recovery partition size is multiple of 2097152(2MiB) and add the same as boot partition size
+  local recovery_size="$(stat -c %s "$recoveryfile")"
+  if [ "$((recovery_size % 2097152))" -eq 0 ]; then
+    if ! [ -z "$shippingapi" ] && [ "$shippingapi" -ge 26 ]; then
+      echo '# Android Verified Boot'
+      echo 'BOARD_AVB_ENABLE := true'
+      if [ "$dynamic" = "true" ]; then
+        echo 'BOARD_AVB_RECOVERY_ALGORITHM := SHA256_RSA2048'
+        echo 'BOARD_AVB_RECOVERY_KEY_PATH := external/avb/test/data/testkey_rsa2048.pem'
+        echo 'BOARD_AVB_RECOVERY_ROLLBACK_INDEX := 1'
+        echo 'BOARD_AVB_RECOVERY_ROLLBACK_INDEX_LOCATION := 1'
+      else
+        echo 'BOARD_AVB_ROLLBACK_INDEX := $(PLATFORM_SECURITY_PATCH_TIMESTAMP)'
+      fi
+      echo ''
+    fi
+    echo "BOARD_BOOTIMAGE_PARTITION_SIZE := $recovery_size"
+    echo "BOARD_RECOVERYIMAGE_PARTITION_SIZE := $recovery_size # This is the maximum known partition size, but it can be higher"
+  else
+    echo "#BOARD_RECOVERYIMAGE_PARTITION_SIZE := $recovery_size # This is the maximum known partition size, but it can be higher, so we just omit it"
+  fi
 
   echo 'BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4'
   echo 'BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4'
@@ -340,9 +359,6 @@ main() {
     mv "omni_${device}.mk" "twrp_${device}.mk"
     sed -i 's/omni/twrp/g' "twrp_${device}.mk"
     sed -i 's/omni/twrp/g' AndroidProducts.mk
-
-    #TODO: Add AVB flags
-
   fi
 }
 
